@@ -1,0 +1,39 @@
+2026-04-13 21:50:22.419 [restartedMain] INFO  b.e.u.d.DistributedLoggingApplicationKt - Starting DistributedLoggingApplicationKt using Java 21.0.10 with PID 46767 (/home/thiago/projects/tcc-impl/build/classes/kotlin/main started by thiago in /home/thiago/projects/tcc-impl)
+2026-04-13 21:50:22.421 [restartedMain] DEBUG b.e.u.d.DistributedLoggingApplicationKt - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-04-13 21:50:22.422 [restartedMain] INFO  b.e.u.d.DistributedLoggingApplicationKt - The following 1 profile is active: "dev"
+2026-04-13 21:50:22.510 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-04-13 21:50:22.511 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-04-13 21:50:23.729 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-04-13 21:50:23.737 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-13 21:50:23.739 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-13 21:50:23.739 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-04-13 21:50:23.769 [restartedMain] INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1258 ms
+2026-04-13 21:50:23.811 [restartedMain] DEBUG i.m.c.u.i.l.InternalLoggerFactory - Using SLF4J as the default logging framework
+2026-04-13 21:50:24.071 [restartedMain] INFO  o.s.v.b.OptionalValidatorFactoryBean - Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-04-13 21:50:24.118 [restartedMain] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	b.e.u.d.w.i.WithOutLogControllerImpl:
+	{GET [/off/async]}: async()
+	{GET [/off/simples]}: simple()
+	{GET [/off/coroutine]}: coroutine()
+	{GET [/off/aninhado]}: nested()
+2026-04-13 21:50:24.121 [restartedMain] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	o.s.b.w.a.e.BasicErrorController:
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+	{ [/error]}: error(HttpServletRequest)
+2026-04-13 21:50:24.130 [restartedMain] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	o.s.w.a.OpenApiWebMvcResource:
+	{GET [/v3/api-docs], produces [application/json]}: openapiJson(HttpServletRequest,String,Locale)
+	{GET [/v3/api-docs.yaml], produces [application/vnd.oai.openapi]}: openapiYaml(HttpServletRequest,String,Locale)
+2026-04-13 21:50:24.131 [restartedMain] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	o.s.w.u.SwaggerWelcomeWebMvc:
+	{GET [/swagger-ui.html]}: redirectToUi(HttpServletRequest)
+2026-04-13 21:50:24.131 [restartedMain] DEBUG _.s.w.s.HandlerMapping.Mappings - 
+	o.s.w.u.SwaggerConfigResource:
+	{GET [/v3/api-docs/swagger-config], produces [application/json]}: openapiJson(HttpServletRequest)
+2026-04-13 21:50:24.135 [restartedMain] DEBUG _.s.w.s.HandlerMapping.Mappings - 'beanNameHandlerMapping' {}
+2026-04-13 21:50:24.147 [restartedMain] DEBUG _.s.w.s.HandlerMapping.Mappings - 'resourceHandlerMapping' {/webjars/**=ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]], /**=ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]], /swagger-ui*/*swagger-initializer.js=ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]], /swagger-ui*/**=ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]}
+2026-04-13 21:50:24.339 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-13 21:50:24.403 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-04-13 21:50:24.413 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-04-13 21:50:24.586 [restartedMain] INFO  b.e.u.d.DistributedLoggingApplicationKt - Started DistributedLoggingApplicationKt in 2.607 seconds (process running for 3.101)
+2026-04-13 21:50:24.836 [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] INFO  o.s.k.l.KafkaMessageListenerContainer - logging-consumer-group: partitions assigned: [message.async-0, message.async-1, message.async-2]
