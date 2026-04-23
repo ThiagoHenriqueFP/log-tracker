@@ -22,14 +22,15 @@ class LoggingInterceptor : HandlerInterceptor {
         handler: Any
     ): Boolean {
         // Gera um correlationId único para essa requisição
-        val correlationId = request.getHeader("X-Correlation-ID") 
-            ?: UUID.randomUUID().toString()
-        
-        // Inicializa o contexto de logging
-        LoggingConfig.initializeLoggingContext(correlationId, 0)
-        
+        val correlationId = request.getHeader("X-Correlation-ID")
+
+        if (correlationId == null)
+            LoggingConfig.initializeLoggingContext(UUID.randomUUID().toString(), 0)
+        else
+            LoggingConfig.initializeLoggingContext(correlationId, UUID.randomUUID().toString(), 0)
+
         logger.debug("Iniciando requisição: {} {}", request.method, request.requestURI)
-        
+
         return true
     }
 
@@ -39,9 +40,11 @@ class LoggingInterceptor : HandlerInterceptor {
         handler: Any,
         ex: Exception?
     ) {
-        logger.debug("Requisição finalizada: {} {} - Status: {}", 
-            request.method, request.requestURI, response.status)
-        
+        logger.debug(
+            "Requisição finalizada: {} {} - Status: {}",
+            request.method, request.requestURI, response.status
+        )
+
         // Limpa o contexto ao finalizar
         LoggingConfig.clearLoggingContext()
     }
