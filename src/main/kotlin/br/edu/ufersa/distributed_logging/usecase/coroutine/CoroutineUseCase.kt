@@ -1,5 +1,6 @@
 package br.edu.ufersa.distributed_logging.usecase.coroutine
 
-fun interface CoroutineUseCase {
+interface CoroutineUseCase {
     fun execute()
+    fun executeWithOutContext()
 }

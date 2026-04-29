@@ -10,11 +10,11 @@ interface WithOutLogController {
     fun simple(): ResponseEntity<Any>
 
     @GetMapping("/aninhado")
-    fun nested(): ResponseEntity<Unit>
+    fun nested(): ResponseEntity<Any>
 
     @GetMapping("/async")
-    fun async(): ResponseEntity<Unit>
+    fun async(): ResponseEntity<Any>
 
     @GetMapping("/coroutine")
-    fun coroutine(): ResponseEntity<Unit>
+    fun coroutine(): ResponseEntity<String>
 }

@@ -1,16 +1,19 @@
 package br.edu.ufersa.distributed_logging.config
 
 import org.slf4j.MDC
+import org.springframework.stereotype.Component
 import java.util.*
 
 /**
  * Classe utilitária para gerenciar campos customizados de logging
  * Utiliza MDC (Mapped Diagnostic Context) do SLF4J para armazenar contexto
  */
+@Component
 object LoggingConfig {
 
     const val CORRELATION_ID = "correlationId"
     const val CORRELATION_ID_EXT = "correlationIdExternal"
+    const val CORRELATION_ID_INT = "correlationIdInternal"
     const val DEPTH = "depth"
     const val THREAD_NAME = "thread"
 

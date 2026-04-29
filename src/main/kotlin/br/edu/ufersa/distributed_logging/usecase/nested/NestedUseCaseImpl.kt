@@ -10,7 +10,7 @@ class NestedUseCaseImpl : NestedUseCase {
         private val log = LoggerFactory.getLogger(NestedUseCaseImpl::class.java)
     }
     override fun execute(limit: Int): ResponseEntity<Any> {
-        log.info("method=NestedUseCaseImpl.execute, message=Executando limit=$limit")
+        log.info("method=NestedUseCaseImpl.execute, message=Executando step=$limit")
         return if (limit >= 5) ResponseEntity.ok().build() else this.execute(limit + 1)
     }
 }
