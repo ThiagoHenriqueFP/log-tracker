@@ -46,7 +46,7 @@ object LoggingConfig {
         MDC.put(key, value)
     }
 
-    fun getCorrelationPair():Pair<String, String> {
+    fun getCorrelationPair():Pair<String, String?> {
         return CORRELATION_ID to MDC.get(this.CORRELATION_ID)
     }
     /**

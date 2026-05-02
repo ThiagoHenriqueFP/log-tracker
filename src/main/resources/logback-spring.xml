@@ -15,9 +15,7 @@
                 <timestamp>@timestamp</timestamp>
                 <message>message</message>
                 <logger>logger</logger>
-                <thread>thread</thread>
                 <level>level</level>
-                <levelValue>levelValue</levelValue>
                 <caller>caller</caller>
                 <stackTrace>stackTrace</stackTrace>
             </fieldNames>
@@ -36,9 +34,7 @@
                 <timestamp>@timestamp</timestamp>
                 <message>message</message>
                 <logger>logger</logger>
-                <thread>thread</thread>
                 <level>level</level>
-                <levelValue>levelValue</levelValue>
                 <caller>caller</caller>
                 <stackTrace>stackTrace</stackTrace>
             </fieldNames>
@@ -65,9 +61,7 @@
                 <timestamp>@timestamp</timestamp>
                 <message>message</message>
                 <logger>logger</logger>
-                <thread>threadName</thread>
                 <level>level</level>
-                <levelValue>levelValue</levelValue>
                 <caller>caller</caller>
                 <stackTrace>stackTrace</stackTrace>
                 <mdc>mdc</mdc>

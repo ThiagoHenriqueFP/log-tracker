@@ -4,20 +4,20 @@ import br.edu.ufersa.distributed_logging.usecase.async.AsyncUseCase
 import br.edu.ufersa.distributed_logging.usecase.coroutine.CoroutineUseCase
 import br.edu.ufersa.distributed_logging.usecase.nested.NestedUseCase
 import br.edu.ufersa.distributed_logging.usecase.simple.SimpleUseCase
-import br.edu.ufersa.distributed_logging.web.WithOutLogController
+import br.edu.ufersa.distributed_logging.web.WithoutLogController
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class WithOutLogControllerImpl(
+class WithoutLogControllerImpl(
     private val simpleUseCase: SimpleUseCase,
     private val coroutineUseCase: CoroutineUseCase,
     private val asyncUseCase: AsyncUseCase,
     private val nestedUseCase: NestedUseCase
-) : WithOutLogController {
+) : WithoutLogController {
     companion object {
-        private val logger = LoggerFactory.getLogger(WithOutLogControllerImpl::class.java)
+        private val logger = LoggerFactory.getLogger(WithoutLogControllerImpl::class.java)
     }
 
     override fun simple(): ResponseEntity<Any> {

@@ -25,9 +25,10 @@ class KafkaAsyncConsumerImpl(
     )
     override fun listen(
         @Payload message: String,
-        @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
+        @Header(KafkaHeaders.CORRELATION_ID) correlationId: String?,
     ) {
-        this.registerMdcConsumer(correlationId)
+        if (correlationId == null) logger.warn("Correlation id $correlationId nao encontrado no header do kafka")
+        else this.registerMdcConsumer(correlationId)
         logger.info("method=KafkaAsyncConsumerImpl.listen, message=Recebendo mensagem do kafka: $message")
         useCase.processFromKafka(message.toInt())
     }
