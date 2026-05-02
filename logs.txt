@@ -1,9 +1,0 @@
-{"message":"Iniciando requisição: GET /async","level":"DEBUG","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"method=AsyncUseCaseImpl.sendToKafka, message=Enviando para o kafka","level":"INFO","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"method=AsyncProducerImpl.execute, message=Enviando para o kafka","level":"INFO","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"method=AsyncProducerImpl.execute, message=Enviado com sucesso","level":"INFO","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"method=AsyncUseCaseImpl.sendToKafka, message=Enviando para o kafka com sucesso","level":"INFO","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"Requisição finalizada: GET /async - Status: 200","level":"DEBUG","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"method=KafkaAsyncConsumerImpl.listen, message=Recebendo mensagem do kafka: 1","level":"INFO","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"method=AsyncUseCaseImpl.processFromKafka, message=Recebendo via kafka","level":"INFO","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
-{"message":"method=AsyncUseCaseImpl.processFromKafka, message=Valor vindo do kafka 1","level":"INFO","correlationId":"52be85d2-75de-4332-8642-d233789461ba"}
