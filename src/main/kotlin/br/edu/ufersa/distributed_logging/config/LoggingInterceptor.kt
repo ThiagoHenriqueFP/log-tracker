@@ -27,7 +27,7 @@ class LoggingInterceptor : HandlerInterceptor {
         if (correlationId == null)
             LoggingConfig.initializeLoggingContext(UUID.randomUUID().toString(), 0)
         else
-            LoggingConfig.initializeLoggingContext(correlationId, UUID.randomUUID().toString(), 0)
+            LoggingConfig.initializeLoggingContext(correlationId, 0)
 
         logger.debug("Iniciando requisição: {} {}", request.method, request.requestURI)
 

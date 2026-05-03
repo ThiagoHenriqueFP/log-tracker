@@ -2,8 +2,6 @@ package br.edu.ufersa.distributed_logging.usecase.coroutine
 
 import br.edu.ufersa.distributed_logging.config.mdc.MdcScopeManager
 import br.edu.ufersa.distributed_logging.config.mdc.MdcSubContextManager
-import br.edu.ufersa.distributed_logging.config.mdc.withMdcContextScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -129,7 +127,25 @@ class CoroutineUseCaseImpl(
 //    }
 
     private suspend fun validarDados() {
+        // TODO propagar context interno
         logger.info("method=validarDados, message=Validando dados de entrada")
+        mdcScopeManager.launchWithDefaultDispatcher {
+            listOf(1, 2, 3, 4).forEach {
+                mdcSubContextManager.executeWithNewInternalId {
+
+                    // Simula processamento
+                    kotlinx.coroutines.delay(100)
+
+                    if (it % 2 == 0) {
+                        logger.warn("method=validarDados, message=Valor $it é par")
+                    } else {
+                        logger.info("method=validarDados, message=Valor $it é ímpar")
+                    }
+
+                }
+            }
+        }
+        logger.info("method=validarDados, message=Dados validados")
         kotlinx.coroutines.delay(50)
     }
 

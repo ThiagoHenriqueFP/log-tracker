@@ -12,7 +12,7 @@ import java.util.*
 object LoggingConfig {
 
     const val CORRELATION_ID = "correlationId"
-    const val CORRELATION_ID_EXT = "correlationIdExternal"
+    const val CORRELATION_ID_PARENT = "correlationIdParent"
     const val CORRELATION_ID_INT = "correlationIdInternal"
     const val DEPTH = "depth"
     const val THREAD_NAME = "thread"
@@ -27,17 +27,6 @@ object LoggingConfig {
         depth: Int = 0
     ) {
         MDC.put(CORRELATION_ID, correlationId)
-        MDC.put(DEPTH, depth.toString())
-        MDC.put(THREAD_NAME, Thread.currentThread().name)
-    }
-
-    fun initializeLoggingContext(
-        correlationIdExt: String,
-        correlationId: String = UUID.randomUUID().toString(),
-        depth: Int = 0
-    ) {
-        MDC.put(CORRELATION_ID, correlationId)
-        MDC.put(CORRELATION_ID_EXT, correlationIdExt)
         MDC.put(DEPTH, depth.toString())
         MDC.put(THREAD_NAME, Thread.currentThread().name)
     }

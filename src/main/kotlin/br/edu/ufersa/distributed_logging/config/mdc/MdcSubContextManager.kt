@@ -50,6 +50,12 @@ class MdcSubContextManager(
         val originalMdc = MDC.getCopyOfContextMap() ?: emptyMap()
 
         try {
+            val parentId: String? = MDC.get(LoggingConfig.CORRELATION_ID_INT)
+            if (parentId != null) {
+                logger.info("parentId=$parentId")
+                MDC.put(LoggingConfig.CORRELATION_ID_PARENT, parentId)
+            }
+
             // Adiciona correlation ID interno único
             MDC.put(loggingConfig.CORRELATION_ID_INT, UUID.randomUUID().toString())
 
@@ -79,6 +85,11 @@ class MdcSubContextManager(
         val originalMdc = MDC.getCopyOfContextMap() ?: emptyMap()
 
         try {
+            val parentId: String? = MDC.get(LoggingConfig.CORRELATION_ID_INT)
+            if (parentId != null) {
+                MDC.put(LoggingConfig.CORRELATION_ID_PARENT, parentId)
+            }
+
             MDC.put(loggingConfig.CORRELATION_ID_INT, internalId)
             logger.debug("Definido correlationIdInternal: $internalId")
 
@@ -97,7 +108,9 @@ class MdcSubContextManager(
      * @param parentContext Contexto MDC pai (opcional, usa atual se não informado)
      * @return Novo contexto MDC com correlationIdInternal único
      */
-    fun createSubContext(parentContext: Map<String, String> = MDC.getCopyOfContextMap() ?: emptyMap()): Map<String, String> {
+    fun createSubContext(
+        parentContext: Map<String, String> = MDC.getCopyOfContextMap() ?: emptyMap()
+    ): Map<String, String> {
         val newContext = parentContext.toMutableMap()
         newContext[loggingConfig.CORRELATION_ID_INT] = UUID.randomUUID().toString()
         return newContext

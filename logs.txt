@@ -1,0 +1,34 @@
+{"message":"Iniciando requisição: GET /coroutine","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=CoroutineUseCaseImpl.execute, message=Iniciando execução com coroutines""level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=CoroutineUseCaseImpl.execute, message=Coroutines lançadas com sucesso""level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Requisição finalizada: GET /coroutine - Status: 200","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=CoroutineUseCaseImpl.execute, message=Executando corrotine principal com MDC preservado","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=processarListaDeTarefas, message=Iniciando processamento de 3 tarefas","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Criado novo sub-contexto MDC com correlationIdInternal","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"f932b09d-a8d2-49e7-9e4b-be2231c85b9d"}
+{"message":"method=processarListaDeTarefas, message=Executando tarefa: validar-dados","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"f932b09d-a8d2-49e7-9e4b-be2231c85b9d"}
+{"message":"method=validarDados, message=Validando dados de entrada","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Criado novo sub-contexto MDC com correlationIdInternal","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"f944567a-325f-4301-b1ff-6ea3b58c1f8f"}
+{"message":"method=validarDados, message=Valor 1 é ímpar","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Restaurado contexto MDC original","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Criado novo sub-contexto MDC com correlationIdInternal","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"6388a812-0d82-40bb-a86e-3d2e5ae6916c"}
+{"message":"method=validarDados, message=Valor 2 é par","level":"WARN","level_value":30000,"correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Restaurado contexto MDC original","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Criado novo sub-contexto MDC com correlationIdInternal","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"933eb7f8-8cfb-49df-ab11-6c4aee8623b9"}
+{"message":"method=validarDados, message=Valor 3 é ímpar","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Restaurado contexto MDC original","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Criado novo sub-contexto MDC com correlationIdInternal","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"9a222151-59b8-4380-ba60-eff2e5724584"}
+{"message":"method=validarDados, message=Valor 4 é par","level":"WARN","level_value":30000,"correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Restaurado contexto MDC original","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=validarDados, message=Dados validados","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=processarListaDeTarefas, message=Tarefa validar-dados concluída","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Restaurado contexto MDC original","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Criado novo sub-contexto MDC com correlationIdInternal","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"c7f917d4-fccc-41e9-9121-4468fa959143"}
+{"message":"method=processarListaDeTarefas, message=Executando tarefa: processar-pagamento","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"c7f917d4-fccc-41e9-9121-4468fa959143"}
+{"message":"method=processarPagamento, message=Processando pagamento","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=processarListaDeTarefas, message=Tarefa processar-pagamento concluída","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Restaurado contexto MDC original","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Criado novo sub-contexto MDC com correlationIdInternal","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"c7474610-c637-4a40-b3e3-b24f8c3f21ff"}
+{"message":"method=processarListaDeTarefas, message=Executando tarefa: enviar-notificacao","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1","correlationIdInternal":"c7474610-c637-4a40-b3e3-b24f8c3f21ff"}
+{"message":"method=enviarNotificacao, message=Enviando notificação","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"method=processarListaDeTarefas, message=Tarefa enviar-notificacao concluída","level":"INFO","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
+{"message":"Restaurado contexto MDC original","level":"DEBUG","correlationId":"3056c1c0-58ce-4079-ad7d-99e544ddc2e1"}
