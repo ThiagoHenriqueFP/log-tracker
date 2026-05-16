@@ -1,0 +1,16 @@
+graph LR
+    subgraph COM Metodologia
+        direction LR
+        REQ[Request HTTP] --> TP[Thread Principal: ID-AAA]
+        TP --> DEC{launch + MDCContext}
+
+        DEC --> TW1[Thread Worker 1: ID-AAA<br>+ Sub-ID-01]
+        DEC --> TW2[Thread Worker 2: ID-AAA<br>+ Sub-ID-02]
+    end
+
+%% Estilização
+    style REQ fill:#222,stroke:#fff,stroke-width:1px,color:#fff
+    style TP fill:#222,stroke:#fff,stroke-width:1px,color:#fff
+    style DEC fill:#222,stroke:#fff,stroke-width:1px,color:#fff
+    style TW1 fill:#031533,stroke:#fff,stroke-width:1px,color:#fff
+    style TW2 fill:#031533,stroke:#fff,stroke-width:1px,color:#fff

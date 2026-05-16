@@ -1,0 +1,28 @@
+graph TD
+    CC[Controlador / consumidor] --> ARM[Aceita requisição /<br>mensagem]
+    ARM --> INT[Interceptor]
+    INT --> MC[MDC Context]
+    MC --> PM[Popular MDC]
+    PM --> Q_CORR{Tem correlationId?}
+
+%% Caminho do SIM
+    Q_CORR -- Sim --> Q_ID{Criar id interno?}
+    Q_ID -- Sim --> LC[Logging configuration]
+    Q_ID -- Nao --> UC[UseCase]
+
+%% Caminho do NÃO e continuação do fluxo
+    Q_CORR -- Nao --> LC
+    LC --> MM[Monta MDC]
+    MM --> UC
+
+%% Estilização dos nós para aproximar do original
+    style CC fill:#2d2d2d,stroke:#fff,color:#fff
+    style ARM fill:#555,stroke:#fff,color:#fff
+    style INT fill:#2d2d2d,stroke:#fff,color:#fff
+    style MC fill:#2d2d2d,stroke:#fff,color:#fff
+    style PM fill:#555,stroke:#fff,color:#fff
+    style Q_CORR fill:#2d2d2d,stroke:#fff,color:#fff
+    style Q_ID fill:#2d2d2d,stroke:#fff,color:#fff
+    style LC fill:#2d2d2d,stroke:#fff,color:#fff
+    style MM fill:#555,stroke:#fff,color:#fff
+    style UC fill:#2d2d2d,stroke:#fff,color:#fff

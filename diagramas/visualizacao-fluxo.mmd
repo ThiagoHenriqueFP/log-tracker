@@ -1,0 +1,48 @@
+sequenceDiagram
+    autonumber
+    participant MainThread as Thread Principal (exec-1)
+    participant W1 as Worker 1 (Orquestrador)
+    participant W2 as Worker 2
+    participant W3 as Worker 3
+    participant W4 as Worker 4
+
+    Note over MainThread: correlationId: 8a9cb518...
+    MainThread->>MainThread: GET /coroutine (Iniciando requisição)
+    MainThread->>W1: launch (Dispara Coroutine Principal)
+    MainThread-->>MainThread: Retorna Status 200 (Requisição Finalizada)
+
+    Note over W1: Executando com MDC Preservado
+    W1->>W1: Iniciando processamento de 3 tarefas
+
+%% Ramificação paralela
+    par Criar tarefa: validar-dados
+        W1->>W1: Criado sub-contexto (5146e546...)
+        W1->>W2: launch {validar-dados}
+        Note over W2: depth: 1 | subContextId: 5146e546...
+        W2->>W2: Validando dados de entrada
+    and Criar tarefa: processar-pagamento
+        W1->>W1: Criado sub-contexto (fb2f8261...)
+        W1->>W3: launch {processar-pagamento}
+        Note over W3: depth: 1 | subContextId: fb2f8261...
+        W3->>W3: Processando pagamento
+        W3->>W3: Atualizando estado interno
+    and Criar tarefa: enviar-notificacao
+        W1->>W1: Criado sub-contexto (755bb7ec...)
+        W1->>W4: launch {enviar-notificacao}
+        Note over W4: depth: 1 | subContextId: 755bb7ec...
+        W4->>W4: Enviando notificação
+        W4->>W4: Limpeza de recursos e finalização
+    end
+
+%% Aninhamento de nível 2 (Sub-corrotina de validação)
+    Note over W2: Preparando dados para processamento...
+    W2->>W4: launch {preparacao-dados} (Sub-corrotina Filho)
+    Note over W4: depth: 2 | parentId: 5146e546... (Mãe) | subContextId: 93f1b3ff... (Filho)
+    W4->>W4: Processando dado: 1..3
+    W4-->>W2: Concluído (Retorna para a Mãe)
+
+%% Finalização da Validação
+    Note over W2: depth: 1 | subContextId: 5146e546...
+    W2->>W2: Executando cálculos auxiliares & Validando resultados
+
+%% Encerramento das Cor

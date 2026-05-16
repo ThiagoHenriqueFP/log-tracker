@@ -12,8 +12,9 @@ import java.util.*
 object LoggingConfig {
 
     const val CORRELATION_ID = "correlationId"
-    const val CORRELATION_ID_EXT = "correlationIdExternal"
-    const val CORRELATION_ID_INT = "correlationIdInternal"
+    const val SUB_CONTEXT_NAME = "subContextName"
+    const val SUB_CONTEXT_ID = "subContextId"
+    const val PARENT_ID = "parentId"
     const val DEPTH = "depth"
     const val THREAD_NAME = "thread"
 
@@ -31,29 +32,27 @@ object LoggingConfig {
         MDC.put(THREAD_NAME, Thread.currentThread().name)
     }
 
-    fun initializeLoggingContext(
-        correlationIdExt: String,
-        correlationId: String = UUID.randomUUID().toString(),
-        depth: Int = 0
-    ) {
-        MDC.put(CORRELATION_ID, correlationId)
-        MDC.put(CORRELATION_ID_EXT, correlationIdExt)
-        MDC.put(DEPTH, depth.toString())
-        MDC.put(THREAD_NAME, Thread.currentThread().name)
-    }
-
     fun setProperty(key: String, value: String) {
         MDC.put(key, value)
     }
 
-    fun getCorrelationPair():Pair<String, String?> {
+    fun getCorrelationPair(): Pair<String, String?> {
         return CORRELATION_ID to MDC.get(this.CORRELATION_ID)
     }
+
     /**
      * Limpa o contexto de logging
      */
     fun clearLoggingContext() {
         MDC.clear()
+    }
+
+    fun getParentId(): String {
+        val subContext = MDC.get(SUB_CONTEXT_ID)
+        return if (subContext != null)
+            subContext!!
+        else
+            MDC.get(CORRELATION_ID)
     }
 }
 

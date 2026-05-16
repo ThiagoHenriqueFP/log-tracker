@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant function as Função inicial
+    participant coroutine as Coroutine Dispatcher
+    participant MDC as MDC manager
+    participant funIn as Função Interna
+    participant log as Logger
+
+    function->>coroutine: Lança coroutine
+    coroutine->>+MDC: Recupera contexto mdc
+    MDC->>-coroutine: Recupera contexto mdc
+    coroutine->>+funIn: Registra log com contexto mdc
+    funIn->>log: Registra log com contexto mdc
+    funIn->>-coroutine: Lança nova coroutine
+    coroutine->>MDC: Recupera contexto mdc e cria sub contexto
+    MDC->>coroutine: Recupera contexto mdc e cria sub contexto
+    coroutine->>+funIn: Registra log com sub contexto mdc
+    funIn->>log: Registra log com sub contexto mdc
+    funIn->>-coroutine: Finaliza regras de negócio
+    coroutine->>function: Retorna resultado da função ou finaliza execução

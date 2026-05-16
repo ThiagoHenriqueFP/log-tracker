@@ -1,0 +1,16 @@
+graph LR
+    subgraph SEM Metodologia
+        direction LR
+        REQ[Request HTTP] --> TP[Thread Principal: ID-123]
+        TP --> DEC{launch}
+
+        DEC --> TW1[Thread Worker 1: ID-NULL]
+        DEC --> TW2[Thread Worker 2: ID-NULL]
+    end
+
+%% Estilização
+    style REQ fill:#222,stroke:#fff,stroke-width:1px,color:#fff
+    style TP fill:#222,stroke:#fff,stroke-width:1px,color:#fff
+    style DEC fill:#222,stroke:#fff,stroke-width:1px,color:#fff
+    style TW1 fill:#031533,stroke:#fff,stroke-width:1px,color:#fff
+    style TW2 fill:#031533,stroke:#fff,stroke-width:1px,color:#fff

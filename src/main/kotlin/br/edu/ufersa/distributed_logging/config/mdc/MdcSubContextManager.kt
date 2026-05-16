@@ -4,6 +4,7 @@ import br.edu.ufersa.distributed_logging.config.LoggingConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -46,85 +47,48 @@ class MdcSubContextManager(
      *
      * @param block Bloco de código a executar com novo ID interno
      */
-    suspend fun executeWithNewInternalId(block: suspend () -> Unit) {
+    suspend fun executeSubContext(
+        block: suspend () -> Unit,
+        subContext: String,
+        uuid: String,
+        depth: Int
+    ): Job {
         val originalMdc = MDC.getCopyOfContextMap() ?: emptyMap()
-
+        val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
         try {
             // Adiciona correlation ID interno único
-            MDC.put(loggingConfig.CORRELATION_ID_INT, UUID.randomUUID().toString())
+            MDC.put(loggingConfig.SUB_CONTEXT_ID, uuid)
+            MDC.put(loggingConfig.DEPTH, depth.toString())
+            MDC.put(loggingConfig.SUB_CONTEXT_NAME, subContext)
 
             logger.debug("Criado novo sub-contexto MDC com correlationIdInternal")
 
-            block()
+            return scope.launchWithMdc(block = block)
         } finally {
             // Restaura o MDC original
-            MDC.clear()
-            originalMdc.forEach { (key, value) ->
-                MDC.put(key, value)
-            }
-
             logger.debug("Restaurado contexto MDC original")
-        }
-    }
-
-    /**
-     * Executa um bloco de código com um correlation ID interno específico
-     *
-     * Útil quando você quer controlar o ID interno ou reutilizar um ID existente.
-     *
-     * @param internalId ID interno a ser usado
-     * @param block Bloco de código a executar
-     */
-    suspend fun executeWithInternalId(internalId: String, block: suspend () -> Unit) {
-        val originalMdc = MDC.getCopyOfContextMap() ?: emptyMap()
-
-        try {
-            MDC.put(loggingConfig.CORRELATION_ID_INT, internalId)
-            logger.debug("Definido correlationIdInternal: $internalId")
-
-            block()
-        } finally {
             MDC.clear()
             originalMdc.forEach { (key, value) ->
                 MDC.put(key, value)
             }
+
         }
     }
 
-    /**
-     * Cria um novo contexto MDC com ID interno único mantendo o contexto pai
-     *
-     * @param parentContext Contexto MDC pai (opcional, usa atual se não informado)
-     * @return Novo contexto MDC com correlationIdInternal único
-     */
-    fun createSubContext(parentContext: Map<String, String> = MDC.getCopyOfContextMap() ?: emptyMap()): Map<String, String> {
-        val newContext = parentContext.toMutableMap()
-        newContext[loggingConfig.CORRELATION_ID_INT] = UUID.randomUUID().toString()
-        return newContext
-    }
-
-    /**
-     * Incrementa a profundidade do MDC para indicar aninhamento
-     *
-     * @param block Bloco a executar com profundidade incrementada
-     */
-    suspend fun executeWithIncreasedDepth(block: suspend () -> Unit) {
-        val originalMdc = MDC.getCopyOfContextMap() ?: emptyMap()
-        val currentDepth = originalMdc[loggingConfig.DEPTH]?.toIntOrNull() ?: 0
-
-        try {
-            MDC.put(loggingConfig.DEPTH, (currentDepth + 1).toString())
-            MDC.put(loggingConfig.CORRELATION_ID_INT, UUID.randomUUID().toString())
-
-            logger.debug("Incrementada profundidade para ${currentDepth + 1} com novo correlationIdInternal")
-
-            block()
-        } finally {
-            MDC.clear()
-            originalMdc.forEach { (key, value) ->
-                MDC.put(key, value)
-            }
-        }
+    suspend fun executeSubContext(
+        subContext: String? = null,
+        block: suspend () -> Unit,
+    ): Job {
+        val uuid = UUID.randomUUID().toString()
+        val parentId = loggingConfig.getParentId()
+        MDC.put(loggingConfig.PARENT_ID, parentId)
+        val newDepth = MDC.get(loggingConfig.DEPTH)?.toIntOrNull()?.plus(1) ?: 1
+        return executeSubContext(
+            block,
+            subContext ?: "$uuid-$newDepth",
+            uuid,
+            newDepth
+        )
     }
 
     /**
@@ -141,7 +105,7 @@ class MdcSubContextManager(
         return tasks.map { task ->
             val scope = CoroutineScope(Dispatchers.Default)
             scope.launchWithMdc {
-                executeWithNewInternalId {
+                executeSubContext {
                     taskExecutor(task)
                 }
             }
@@ -153,8 +117,8 @@ class MdcSubContextManager(
      *
      * @return Correlation ID interno atual ou null se não existir
      */
-    fun getCurrentInternalId(): String? {
-        return MDC.get(loggingConfig.CORRELATION_ID_INT)
+    fun getCurrentSubContextId(): String? {
+        return MDC.get(loggingConfig.SUB_CONTEXT_ID)
     }
 
     /**
@@ -162,7 +126,7 @@ class MdcSubContextManager(
      *
      * @return true se existe correlation ID interno, false caso contrário
      */
-    fun hasInternalId(): Boolean {
-        return getCurrentInternalId() != null
+    fun hasSubContextId(): Boolean {
+        return getCurrentSubContextId() != null
     }
 }

@@ -1,0 +1,13 @@
+sequenceDiagram
+    autonumber
+    actor Producer as Spring App (Producer)
+    participant Broker as Kafka Broker
+    actor Consumer as Consumer Service
+
+    Note over Producer: Log (CorrelationID: 52be...)
+    Producer->>Broker: Envia Mensagem + Header (correlationId: 52be)
+    Note over Broker: Header contém o ID de Rastreio
+    Broker->>Consumer: Entrega Mensagem + Header
+    Note over Consumer: Extrai Header -> Injeta no MDC
+    Note over Consumer: Log (CorrelationID: 52be...)
+    Note over Producer,Consumer: Rastro completo em múltiplos sistemas

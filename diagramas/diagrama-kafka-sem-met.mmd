@@ -1,0 +1,12 @@
+sequenceDiagram
+    autonumber
+    actor Producer as Spring App (Producer)
+    participant Broker as Kafka Broker
+    actor Consumer as Consumer Service
+
+    Note over Producer: Gera Log (Trace: 69f5...)
+    Producer->>Broker: Envia Mensagem (apenas mensagem)
+    Note over Broker: Mensagem sem Metadados de Rastreio
+    Broker->>Consumer: Entrega Mensagem
+    Note over Consumer: Gera Log (Trace: NULL)
+    Note over Consumer: Impossível ligar este log ao App original

@@ -1,11 +1,10 @@
 package br.edu.ufersa.distributed_logging.usecase.coroutine
 
-import br.edu.ufersa.distributed_logging.config.mdc.MdcScopeManager
+import br.edu.ufersa.distributed_logging.config.mdc.MdcContextManager
 import br.edu.ufersa.distributed_logging.config.mdc.MdcSubContextManager
-import br.edu.ufersa.distributed_logging.config.mdc.withMdcContextScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -14,7 +13,7 @@ import java.util.concurrent.Executors
 
 @Component
 class CoroutineUseCaseImpl(
-    private val mdcScopeManager: MdcScopeManager,
+    private val mdcContextManager: MdcContextManager,
     private val mdcSubContextManager: MdcSubContextManager
 ) : CoroutineUseCase {
 
@@ -25,15 +24,9 @@ class CoroutineUseCaseImpl(
     override fun execute() {
         logger.info("method=CoroutineUseCaseImpl.execute, message=Iniciando execução com coroutines")
 
-        // Exemplo 1: Usando o gerenciador de escopos com despachador padrão
-        mdcScopeManager.launchWithDefaultDispatcher {
+        mdcContextManager.launchWithDefaultDispatcher {
             logger.info("method=CoroutineUseCaseImpl.execute, message=Executando corrotine principal com MDC preservado")
-
-            // Exemplo 2: Cada tarefa em um loop tem seu próprio correlationIdInternal
             processarListaDeTarefas()
-
-//            // Exemplo 3: Usando DSL de sub-contextos
-//            executarComSubContextos()
         }
 
         logger.info("method=CoroutineUseCaseImpl.execute, message=Coroutines lançadas com sucesso")
@@ -77,7 +70,7 @@ class CoroutineUseCaseImpl(
 
         // Cada tarefa será executada com seu próprio correlationIdInternal único
         tarefas.forEach { tarefa ->
-            mdcSubContextManager.executeWithNewInternalId {
+            mdcSubContextManager.executeSubContext(tarefa) {
                 logger.info("method=processarListaDeTarefas, message=Executando tarefa: $tarefa")
 
                 // Simula processamento
@@ -130,16 +123,63 @@ class CoroutineUseCaseImpl(
 
     private suspend fun validarDados() {
         logger.info("method=validarDados, message=Validando dados de entrada")
+        prepararDados()
+        executarCalculos()
+        validarResultados()
+        registrarEvento("validar-dados")
         kotlinx.coroutines.delay(50)
     }
 
     private suspend fun processarPagamento() {
         logger.info("method=processarPagamento, message=Processando pagamento")
+        atualizarEstado("processar-pagamento")
+        registrarEvento("processar-pagamento")
         kotlinx.coroutines.delay(150)
     }
 
     private suspend fun enviarNotificacao() {
         logger.info("method=enviarNotificacao, message=Enviando notificação")
+        limparRecursos()
+        finalizarProcessamento()
+        registrarEvento("enviar-notificacao")
         kotlinx.coroutines.delay(75)
+    }
+
+    // Funções adicionais simples apenas com logs para aumentar o tamanho do exemplo
+    private suspend fun prepararDados() {
+        logger.info("method=prepararDados, message=Preparando dados para processamento")
+        val resultados = listOf(1..3).map {
+            mdcSubContextManager.executeSubContext("preparacao-dados") {
+                logger.info("method=prepararDados, message=Processando dado: $it")
+                kotlinx.coroutines.delay(1)
+            }
+        }
+
+        resultados.joinAll()
+        logger.info("method=prepararDados, message=Preparação de dados concluída")
+    }
+
+    private suspend fun executarCalculos() {
+        logger.info("method=executarCalculos, message=Executando cálculos auxiliares")
+    }
+
+    private suspend fun validarResultados() {
+        logger.info("method=validarResultados, message=Validando resultados obtidos")
+    }
+
+    private suspend fun finalizarProcessamento() {
+        logger.info("method=finalizarProcessamento, message=Finalizando processamento")
+    }
+
+    private suspend fun limparRecursos() {
+        logger.info("method=limparRecursos, message=Limpeza de recursos iniciada")
+    }
+
+    private suspend fun registrarEvento(nomeEvento: String) {
+        logger.info("method=registrarEvento, event=$nomeEvento, message=Registrando evento")
+    }
+
+    private suspend fun atualizarEstado(estado: String) {
+        logger.info("method=atualizarEstado, state=$estado, message=Atualizando estado interno")
     }
 }
