@@ -50,7 +50,7 @@ object LoggingConfig {
     fun getParentId(): String {
         val subContext = MDC.get(SUB_CONTEXT_ID)
         return if (subContext != null)
-            subContext!!
+            subContext
         else
             MDC.get(CORRELATION_ID)
     }

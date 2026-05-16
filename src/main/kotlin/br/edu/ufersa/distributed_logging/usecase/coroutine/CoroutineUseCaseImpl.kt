@@ -10,6 +10,9 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.concurrent.Executors
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Component
 class CoroutineUseCaseImpl(
@@ -43,7 +46,7 @@ class CoroutineUseCaseImpl(
                         logger.info("method=processarListaDeTarefas, message=Executando tarefa: $tarefa")
 
                         // Simula processamento
-                        kotlinx.coroutines.delay(100)
+                        kotlinx.coroutines.delay(100.milliseconds)
 
                         when (tarefa) {
                             "validar-dados" -> validarDados()
@@ -74,7 +77,7 @@ class CoroutineUseCaseImpl(
                 logger.info("method=processarListaDeTarefas, message=Executando tarefa: $tarefa")
 
                 // Simula processamento
-                kotlinx.coroutines.delay(100)
+                kotlinx.coroutines.delay(100.milliseconds)
 
                 when (tarefa) {
                     "validar-dados" -> validarDados()
@@ -127,14 +130,14 @@ class CoroutineUseCaseImpl(
         executarCalculos()
         validarResultados()
         registrarEvento("validar-dados")
-        kotlinx.coroutines.delay(50)
+        kotlinx.coroutines.delay(50.milliseconds)
     }
 
     private suspend fun processarPagamento() {
         logger.info("method=processarPagamento, message=Processando pagamento")
         atualizarEstado("processar-pagamento")
         registrarEvento("processar-pagamento")
-        kotlinx.coroutines.delay(150)
+        kotlinx.coroutines.delay(150.milliseconds)
     }
 
     private suspend fun enviarNotificacao() {
@@ -142,7 +145,7 @@ class CoroutineUseCaseImpl(
         limparRecursos()
         finalizarProcessamento()
         registrarEvento("enviar-notificacao")
-        kotlinx.coroutines.delay(75)
+        kotlinx.coroutines.delay(75.milliseconds)
     }
 
     // Funções adicionais simples apenas com logs para aumentar o tamanho do exemplo
@@ -151,7 +154,7 @@ class CoroutineUseCaseImpl(
         val resultados = listOf(1..3).map {
             mdcSubContextManager.executeSubContext("preparacao-dados") {
                 logger.info("method=prepararDados, message=Processando dado: $it")
-                kotlinx.coroutines.delay(1)
+                kotlinx.coroutines.delay(10.milliseconds)
             }
         }
 
