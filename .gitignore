@@ -40,3 +40,5 @@ out/
 .kotlin
 *.log
 *.log.gz
+
+logs.txt
