@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor Usuario as Usuário
+    participant CtrlA as Controlador A
+    participant RecA as Recurso A
+    participant CtrlB as Controlador B
+    participant RecB as Recurso B
+
+    Usuario->>CtrlA: Inicia requisição
+    activate CtrlA
+    CtrlA->>RecA: Chama Recurso A
+    activate RecA
+    
+    Note over RecA,CtrlB: Recurso A inicia e delega para o próximo fluxo
+    RecA->>CtrlB: Chama Controlador B
+    activate CtrlB
+    CtrlB->>RecB: Chama Recurso B
+    activate RecB
+    Note over RecB: Recurso B processa e responde
+    RecB-->>CtrlB: Retorna dados do Recurso B
+    deactivate RecB
+    CtrlB-->>RecA: Retorna ao Recurso A
+    deactivate CtrlB
+
+    Note over RecA,RecB: Recurso A consome as informações do Recurso B
+    RecA->>RecA: Processa e combina (A + B)
+    
+    RecA-->>CtrlA: Retorna resultado AB
+    deactivate RecA
+    CtrlA-->>Usuario: Retorna resposta final AB
+    deactivate CtrlA
