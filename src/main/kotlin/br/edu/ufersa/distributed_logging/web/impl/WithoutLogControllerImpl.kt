@@ -30,6 +30,10 @@ class WithoutLogControllerImpl(
         }
     }
 
+    override fun simple(str: String): ResponseEntity<Any> {
+        return ResponseEntity.ok(simpleUseCase.execute(str))
+    }
+
     override fun nested(): ResponseEntity<Any> {
         return nestedUseCase.execute()
     }

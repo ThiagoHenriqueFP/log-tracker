@@ -1,8 +1,10 @@
 package br.edu.ufersa.distributed_logging.config.kafka.interceptors
 
+import br.edu.ufersa.distributed_logging.config.MdcInterceptor
 import org.apache.kafka.clients.producer.ProducerInterceptor
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.slf4j.MDC
+import org.slf4j.LoggerFactory
+import org.springframework.kafka.support.KafkaHeaders
 
 /**
  * Interceptor de Producer que propaga MDC (correlationId) para headers Kafka
@@ -13,11 +15,10 @@ import org.slf4j.MDC
  * - Adiciona correlationId aos headers de cada mensagem
  * - Preserva rastreabilidade distribuída
  */
-class MdcProducerInterceptor : ProducerInterceptor<String, String> {
+class MdcProducerInterceptor : ProducerInterceptor<String, String>, MdcInterceptor() {
 
     companion object {
-        private const val CORRELATION_ID_KEY = "correlationId"
-        private const val CORRELATION_ID_INTERNAL_KEY = "correlationIdInternal"
+            private val log = LoggerFactory.getLogger(MdcProducerInterceptor::class.java)
     }
 
     /**
@@ -29,25 +30,15 @@ class MdcProducerInterceptor : ProducerInterceptor<String, String> {
 
         try {
             // Obtém o correlationId do MDC
-            val correlationId = MDC.get(CORRELATION_ID_KEY)
-            if (correlationId != null) {
+            val correlationId = createCorrelationId()
+
                 record.headers().add(
-                    CORRELATION_ID_KEY,
+                    KafkaHeaders.CORRELATION_ID,
                     correlationId.toByteArray(Charsets.UTF_8)
                 )
-            }
-
-            // Obtém o correlationIdInternal do MDC (opcional)
-            val correlationIdInternal = MDC.get(CORRELATION_ID_INTERNAL_KEY)
-            if (correlationIdInternal != null) {
-                record.headers().add(
-                    CORRELATION_ID_INTERNAL_KEY,
-                    correlationIdInternal.toByteArray(Charsets.UTF_8)
-                )
-            }
         } catch (e: Exception) {
             // Log silencioso para não quebrar o envio
-            System.err.println("Erro ao adicionar MDC aos headers Kafka: ${e.message}")
+            log.error("Erro ao adicionar MDC aos headers Kafka: ${e.message}", e)
         }
 
         return record

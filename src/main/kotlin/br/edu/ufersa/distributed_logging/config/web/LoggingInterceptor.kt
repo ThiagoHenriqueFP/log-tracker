@@ -1,5 +1,7 @@
-package br.edu.ufersa.distributed_logging.config
+package br.edu.ufersa.distributed_logging.config.web
 
+import br.edu.ufersa.distributed_logging.config.LoggingConfig
+import br.edu.ufersa.distributed_logging.config.MdcInterceptor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -12,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse
  * Interceptor que inicializa o contexto de logging para cada requisição HTTP
  */
 @Component
-class LoggingInterceptor : HandlerInterceptor {
+class LoggingInterceptor : HandlerInterceptor, MdcInterceptor() {
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -21,9 +23,19 @@ class LoggingInterceptor : HandlerInterceptor {
         response: HttpServletResponse,
         handler: Any
     ): Boolean {
-        // Gera um correlationId único para essa requisição
         val correlationId = request.getHeader("X-Correlation-ID") ?: UUID.randomUUID().toString()
-        LoggingConfig.initializeLoggingContext(correlationId, 0)
+        if (correlationId.contains(":")) {
+            val ids = getContextIds(correlationId)
+
+            LoggingConfig.initializeLoggingContext(ids[LoggingConfig.CORRELATION_ID].toString())
+
+            ids.forEach { (key, value) ->
+                LoggingConfig.setProperty(key, value)
+            }
+
+        } else {
+            LoggingConfig.initializeLoggingContext(correlationId)
+        }
 
         logger.debug("Iniciando requisição: {} {}", request.method, request.requestURI)
 

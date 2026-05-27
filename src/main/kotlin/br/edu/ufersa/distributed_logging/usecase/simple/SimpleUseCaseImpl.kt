@@ -23,4 +23,8 @@ class SimpleUseCaseImpl : SimpleUseCase {
 
         return time.toString()
     }
+
+    override fun execute(str: String): String {
+        return str.plus(" - Processado pelo caso de uso simples")
+    }
 }

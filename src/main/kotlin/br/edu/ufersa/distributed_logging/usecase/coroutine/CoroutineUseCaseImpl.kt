@@ -2,22 +2,18 @@ package br.edu.ufersa.distributed_logging.usecase.coroutine
 
 import br.edu.ufersa.distributed_logging.config.mdc.MdcContextManager
 import br.edu.ufersa.distributed_logging.config.mdc.MdcSubContextManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import br.edu.ufersa.distributed_logging.usecase.external.ExternalUseCase
+import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.concurrent.Executors
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 @Component
 class CoroutineUseCaseImpl(
     private val mdcContextManager: MdcContextManager,
-    private val mdcSubContextManager: MdcSubContextManager
+    private val mdcSubContextManager: MdcSubContextManager,
+    private val externalUSeCase: ExternalUseCase
 ) : CoroutineUseCase {
 
     companion object {
@@ -180,6 +176,7 @@ class CoroutineUseCaseImpl(
 
     private suspend fun registrarEvento(nomeEvento: String) {
         logger.info("method=registrarEvento, event=$nomeEvento, message=Registrando evento")
+        externalUSeCase.execute(nomeEvento)
     }
 
     private suspend fun atualizarEstado(estado: String) {
