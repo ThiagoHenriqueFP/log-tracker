@@ -30,3 +30,29 @@ services:
       - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
     depends_on:
       - broker
+
+  app1:
+    build: .
+    container_name: app1
+    depends_on:
+      - broker
+    environment:
+      CLIENT_URL: http://app2:8081
+    ports:
+      - "8080:8080"
+  app2:
+    build: .
+    container_name: app2
+    depends_on:
+      - broker
+    ports:
+      - "8081:8080"
+
+  fluentd:
+    image: fluent/fluentd:latest
+    container_name: fluentd
+    volumes:
+      - /data:/fluentd/log
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
