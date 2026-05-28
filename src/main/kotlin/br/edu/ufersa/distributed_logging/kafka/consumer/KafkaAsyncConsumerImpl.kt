@@ -10,8 +10,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class KafkaAsyncConsumerImpl(
-    private val useCase: AsyncUseCase
-) : KafkaAsyncConsumer, RegisterMdcConsumer() {
+    private val useCase: AsyncUseCase,
+    private val registerMdcConsumer: RegisterMdcConsumer
+) : KafkaAsyncConsumer {
 
     companion object {
         private val logger = LoggerFactory.getLogger(KafkaAsyncConsumerImpl::class.java)
@@ -26,7 +27,7 @@ class KafkaAsyncConsumerImpl(
         @Header(KafkaHeaders.CORRELATION_ID) correlationId: String?,
     ) {
         if (correlationId == null) logger.warn("Correlation id $correlationId nao encontrado no header do kafka")
-        else this.registerMdcConsumer(correlationId)
+        else registerMdcConsumer.registerMdcConsumer(correlationId)
         logger.info("method=KafkaAsyncConsumerImpl.listen, message=Recebendo mensagem do kafka: $message")
         useCase.processFromKafka(message.toInt())
     }

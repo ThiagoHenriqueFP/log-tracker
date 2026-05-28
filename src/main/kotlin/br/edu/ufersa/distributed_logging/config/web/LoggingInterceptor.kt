@@ -14,7 +14,9 @@ import jakarta.servlet.http.HttpServletResponse
  * Interceptor que inicializa o contexto de logging para cada requisição HTTP
  */
 @Component
-class LoggingInterceptor : HandlerInterceptor, MdcInterceptor() {
+class LoggingInterceptor(
+    private val mdcInterceptor: MdcInterceptor,
+) : HandlerInterceptor {
 
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -25,7 +27,7 @@ class LoggingInterceptor : HandlerInterceptor, MdcInterceptor() {
     ): Boolean {
         val correlationId = request.getHeader("X-Correlation-ID") ?: UUID.randomUUID().toString()
         if (correlationId.contains(":")) {
-            val ids = getContextIds(correlationId)
+            val ids = mdcInterceptor.getContextIds(correlationId)
 
             LoggingConfig.initializeLoggingContext(ids[LoggingConfig.CORRELATION_ID].toString())
 

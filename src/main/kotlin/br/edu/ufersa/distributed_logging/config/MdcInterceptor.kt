@@ -1,9 +1,11 @@
 package br.edu.ufersa.distributed_logging.config
 
 import org.slf4j.MDC
+import org.springframework.stereotype.Component
 import java.util.UUID
 
-abstract class MdcInterceptor {
+@Component
+open class MdcInterceptor {
     fun createCorrelationId(): String {
         val correlationId: String? = MDC.get(LoggingConfig.CORRELATION_ID)
         val subContext: String? = MDC.get(LoggingConfig.SUB_CONTEXT_NAME)

@@ -36,9 +36,11 @@ out/
 ### VS Code ###
 .vscode/
 
+data/
 ### Kotlin ###
 .kotlin
 *.log
 *.log.gz
+*.log.*
 
 logs.txt

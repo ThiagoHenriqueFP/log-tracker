@@ -1,9 +1,9 @@
-FROM eclipse-temurin:25-jdk-alpine AS build
+FROM amazoncorretto:21-alpine-jdk AS build
 WORKDIR /app
 COPY . .
 RUN ./gradlew bootJar --no-daemon
 
-FROM eclipse-temurin:17-jre-alpine
+FROM amazoncorretto:21-alpine-full
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080

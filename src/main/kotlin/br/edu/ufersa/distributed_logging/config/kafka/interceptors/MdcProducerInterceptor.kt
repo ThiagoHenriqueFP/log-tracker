@@ -15,7 +15,9 @@ import org.springframework.kafka.support.KafkaHeaders
  * - Adiciona correlationId aos headers de cada mensagem
  * - Preserva rastreabilidade distribuída
  */
-class MdcProducerInterceptor : ProducerInterceptor<String, String>, MdcInterceptor() {
+class MdcProducerInterceptor(
+    private val mdcInterceptor: MdcInterceptor
+) : ProducerInterceptor<String, String> {
 
     companion object {
             private val log = LoggerFactory.getLogger(MdcProducerInterceptor::class.java)
@@ -30,7 +32,7 @@ class MdcProducerInterceptor : ProducerInterceptor<String, String>, MdcIntercept
 
         try {
             // Obtém o correlationId do MDC
-            val correlationId = createCorrelationId()
+            val correlationId = mdcInterceptor.createCorrelationId()
 
                 record.headers().add(
                     KafkaHeaders.CORRELATION_ID,
