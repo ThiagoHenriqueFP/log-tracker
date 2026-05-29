@@ -2,7 +2,7 @@ spring:
   application:
     name: distributed-logging
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092 }
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -19,7 +19,7 @@ kafka:
 
 simple:
   service:
-    base-url: ${CLIENT_URL:http://localhost:8080}
+    base-url: ${CLIENT_URL:localhost:8080}
 
 kind: Application
 

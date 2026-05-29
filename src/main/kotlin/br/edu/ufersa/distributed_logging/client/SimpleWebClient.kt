@@ -10,10 +10,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-/**
- * Cliente HTTP simples usando Spring WebClient para chamar POST {baseUrl}/simples
- * A baseUrl é configurada em `application.yaml` como `simple.service.base-url`
- */
 @Component
 class SimpleWebClient(
     @Value($$"${simple.service.base-url}")
@@ -31,13 +27,18 @@ class SimpleWebClient(
     fun sendEvent(str: String): String? {
         return try {
             val request = HttpRequest.newBuilder()
-                .uri(URI(baseUrl.plus(encode("/simples/hello world"))))
+                .uri(
+                    URI(
+                        baseUrl
+                            .plus("/simples/")
+                            .plus(encode(str))
+                    )
+                )
                 .header("Content-Type", "text/plain")
                 .header("X-Correlation-ID", mdcInterceptor.createCorrelationId())
-                .POST(HttpRequest.BodyPublishers.ofString(str))
+                .GET()
                 .build()
             val response = webClient.send(request, HttpResponse.BodyHandlers.ofString())
-
 
             if (response.statusCode() in 200..299) {
                 response.body()
