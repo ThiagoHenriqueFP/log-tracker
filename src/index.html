@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Log Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            background: #252526;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        h1 { margin: 0 0 10px 0; font-size: 1.4em; color: #fff; }
+
+        /* Estilos da Árvore */
+        .tree-container { margin-top: 10px; }
+        .node-details {
+            margin-left: 20px;
+            border-left: 1px dashed #555;
+            padding-left: 10px;
+            margin-bottom: 4px;
+        }
+        .node-summary {
+            cursor: pointer;
+            padding: 6px;
+            background: #2d2d2d;
+            border-radius: 4px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .node-summary:hover {
+            background: #3a3d41;
+            border-color: #555;
+        }
+        .node-type {
+            background: #007acc;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .node-type.subcontext { background: #4caf50; }
+        .node-name { font-weight: bold; color: #fff;}
+        .node-id { font-size: 0.85em; color: #888; }
+
+        /* Estilos das Linhas de Log */
+        .log-line {
+            display: flex;
+            gap: 15px;
+            padding: 4px 8px;
+            border-bottom: 1px solid #2d2d2d;
+            font-size: 0.9em;
+        }
+        .log-line:hover { background-color: #2a2d2e; }
+        .log-time { color: #569cd6; white-space: nowrap; }
+        .log-level { font-weight: bold; width: 50px; text-align: center; }
+        .level-debug { color: #808080; }
+        .level-info { color: #4fc1ff; }
+        .level-warn { color: #ce9178; }
+        .level-error { color: #f44336; }
+        .log-msg { color: #cecece; word-break: break-all; }
+        .log-empty { padding: 5px 10px; font-style: italic; color: #666; font-size: 0.9em;}
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🌳 Visualizador Distribuído de Logs</h1>
+    <p style="margin-bottom: 15px; font-size: 0.9em; color: #aaa;">
+        Faça upload do seu arquivo CSV para gerar a árvore baseada nos contextos e <code>parentIds</code>.
+    </p>
+    <input type="file" id="csvFileInput" accept=".csv" style="color: #fff;" />
+</div>
+
+<div id="tree-container" class="tree-container">
+</div>
+
+<script>
+    document.getElementById('csvFileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        document.getElementById('tree-container').innerHTML = '<i>Processando arquivo...</i>';
+
+        // Utiliza o PapaParse para ler o CSV
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                buildTree(results.data);
+            }
+        });
+    });
+
+    function buildTree(data) {
+        const nodes = {};
+        const roots = [];
+
+        // Passo 1: Descobrir e criar todos os Contextos (Nós da árvore)
+        data.forEach(row => {
+            if (!row.correlationId) return;
+
+            // Cria o nó raiz (Correlation) se não existir
+            if (!nodes[row.correlationId]) {
+                nodes[row.correlationId] = {
+                    id: row.correlationId,
+                    name: "Trace Principal",
+                    type: 'correlation',
+                    parentId: null,
+                    logs: [],
+                    children: []
+                };
+            }
+
+            // Cria o nó de SubContexto se a linha apresentar um
+            if (row.subContextId && !nodes[row.subContextId]) {
+                nodes[row.subContextId] = {
+                    id: row.subContextId,
+                    name: row.subContextName || 'SubContexto',
+                    type: 'subcontext',
+                    parentId: row.parentId || row.correlationId,
+                    logs: [],
+                    children: []
+                };
+            }
+        });
+
+        // Passo 2: Alocar os logs em suas respectivas "pastas"
+        data.forEach(row => {
+            if (!row.correlationId) return;
+
+            // O log vai pra pasta do subContextId dele; se não tiver, vai pro trace principal
+            const targetId = row.subContextId ? row.subContextId : row.correlationId;
+            if (nodes[targetId]) {
+                nodes[targetId].logs.push(row);
+            }
+        });
+
+        // Passo 3: Montar a hierarquia ligando pais e filhos
+        Object.values(nodes).forEach(node => {
+            // Se ele tem um pai mapeado, empurra pros filhos do pai
+            if (node.parentId && nodes[node.parentId] && node.parentId !== node.id) {
+                nodes[node.parentId].children.push(node);
+            } else {
+                // Se não tem pai mapeado (ou é null), ele é uma raiz
+                roots.push(node);
+            }
+        });
+
+        render(roots);
+    }
+
+    // Formata a data ISO para um tempo curto e legível HH:mm:ss.SSS
+    function formatTime(isoStr) {
+        if(!isoStr) return '';
+        try { return isoStr.substring(11, 23); }
+        catch(e) { return isoStr; }
+    }
+
+    function render(roots) {
+        const container = document.getElementById('tree-container');
+        if(roots.length === 0) {
+            container.innerHTML = '<p>Nenhum dado hierárquico válido encontrado.</p>';
+            return;
+        }
+
+        let html = '';
+        roots.forEach(root => { html += renderNode(root); });
+        container.innerHTML = html;
+    }
+
+    function renderNode(node) {
+        let html = `<details open class="node-details">`;
+
+        // Cabeçalho da Pasta
+        html += `
+                <summary class="node-summary">
+                    <span class="node-type ${node.type}">${node.type === 'correlation' ? 'TRACE' : 'SUBCONTEXT'}</span>
+                    <span class="node-name">${node.name}</span>
+                    <span class="node-id">(${node.id}) - ${node.logs.length} logs</span>
+                </summary>
+            `;
+
+        // Logs que pertencem a este nível
+        if (node.logs.length === 0 && node.children.length === 0) {
+            html += `<div class="log-empty">Nenhum log neste nível</div>`;
+        } else {
+            node.logs.forEach(log => {
+                const levelClass = `level-${(log.level || 'unknown').toLowerCase()}`;
+                html += `
+                        <div class="log-line">
+                            <span class="log-time">${formatTime(log['@timestamp'])}</span>
+                            <span class="log-level ${levelClass}">${log.level || '-'}</span>
+                            <span class="log-msg">${log.message || ''}</span>
+                        </div>
+                    `;
+            });
+        }
+
+        // Sub-contextos (Pastas Filhas)
+        node.children.forEach(child => {
+            html += renderNode(child);
+        });
+
+        html += `</details>`;
+        return html;
+    }
+</script>
+</body>
+</html>

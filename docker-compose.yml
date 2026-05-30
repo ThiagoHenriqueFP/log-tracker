@@ -19,17 +19,6 @@ services:
       KAFKA_NUM_PARTITIONS: 3
     ports:
       - "9092:9092"
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - "8081:8080"
-    environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
-    volumes:
-      - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
-    depends_on:
-      - broker
 
   app1:
     build: .
@@ -38,15 +27,15 @@ services:
       - broker
       - fluentd
     environment:
-      CLIENT_URL: http://app2:8081
+      CLIENT_URL: http://app2:8088
       KAFKA_BOOTSTRAP_SERVERS: broker:29092
     ports:
       - "8080:8080"
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: localhost:24224
-        tag: app1
+        fluentd-address: 127.0.0.1:24224
+        tag: docker.app1
   app2:
     build: .
     container_name: app2
@@ -56,21 +45,58 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: broker:29092
     ports:
-      - "8081:8080"
+      - "8088:8080"
     logging:
         driver: "fluentd"
         options:
-            fluentd-address: localhost:24224
-            tag: app2
+            fluentd-address: 127.0.0.1:24224
+            tag: docker.app2
 
   fluentd:
-    image: fluent/fluentd:v1.3-debian-1
+    build:
+     context: .
+     dockerfile_inline: |
+       FROM fluent/fluentd:v1.19-debian-2
+       USER root
+       RUN fluent-gem install fluent-plugin-elasticsearch
+       USER fluent
     container_name: fluentd
     user: "0"
     environment:
       - FLUENTD_UID=0
     volumes:
+      - ./config/fluent.conf:/fluentd/etc/fluent.conf
       - ./data:/fluentd/log
     ports:
       - "24224:24224"
       - "24224:24224/udp"
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: elasticsearch:9.4.2
+    container_name: elasticsearch
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    environment:
+      discovery.type: 'single-node'
+      xpack.security.enabled: 'false'
+      ELASTIC_PASSWORD: 'elastic'
+      ES_JAVA_OPTS: '-Xmx2g -Xms2g'
+
+  kibana:
+    image: kibana:9.4.2
+    container_name: kibana
+    environment:
+        ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+        ELASTICSEARCH_SERVICEACCOUNTTOKEN: "AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpqV1V2RTJteFJzS053RzZwTU84NDd3"
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+volumes:
+  es_data:
+    driver: local
