@@ -1,16 +1,31 @@
-graph LR
-    subgraph COM Metodologia
-        direction LR
-        REQ[Request HTTP] --> TP[Thread Principal: ID-AAA]
-        TP --> DEC{launch + MDCContext}
+graph TD
+  %% Diagrama em duas colunas (vertical e compacto)
+  subgraph Coluna1[Fluxo principal]
+    direction TB
+    REQ["Request HTTP / Kafka\n(início)"]
+    TP["Thread Principal\n(MDC inicializado)"]
+    LAUNCH["launchWithMdc()\n(CoroutineMdcExtensions)"]
+    WORKER["Worker (Dispatcher)\n(MDC preservado)"]
+    LOGS["Logs finais\n(correlationId + optional correlationIdInternal)"]
+  end
 
-        DEC --> TW1[Thread Worker 1: ID-AAA<br>+ Sub-ID-01]
-        DEC --> TW2[Thread Worker 2: ID-AAA<br>+ Sub-ID-02]
-    end
+  subgraph Coluna2["Sub-contextos"]
+    direction TB
+    SUBMGR["MdcSubContextManager\n(cria correlationIdInternal, DEPTH)"]
+    SUB["Sub-contexto\n(correlationIdInternal)\nexecuta bloco em novo scope"]
+    REST["Restaura MDC original\n(após sub-contexto)"]
+  end
 
-%% Estilização
-    style REQ fill:#222,stroke:#fff,stroke-width:1px,color:#fff
-    style TP fill:#222,stroke:#fff,stroke-width:1px,color:#fff
-    style DEC fill:#222,stroke:#fff,stroke-width:1px,color:#fff
-    style TW1 fill:#031533,stroke:#fff,stroke-width:1px,color:#fff
-    style TW2 fill:#031533,stroke:#fff,stroke-width:1px,color:#fff
+  %% Ligações principais (coluna 1)
+  REQ --> TP --> LAUNCH --> WORKER --> LOGS
+
+  %% Conexões entre colunas: worker cria/aciona sub-contextos
+  WORKER -.-> SUBMGR
+  SUBMGR --> SUB --> REST --> LOGS
+
+classDef gray fill:#f3f4f6,stroke:#bbb
+class Coluna1,Coluna2 gray
+%% Notas compactas para referência de código
+%% MdcContextElement: updateThreadContext() aplica mapa MDC na thread; restoreThreadContext() restaura mapa anterior
+%% MdcSubContextManager: cria SUB_CONTEXT_ID, DEPTH, SUB_CONTEXT_NAME; executa bloco com launchWithMdc() e restaura MDC original
+

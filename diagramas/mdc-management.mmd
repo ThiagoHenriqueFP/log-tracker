@@ -1,0 +1,49 @@
+graph TD
+    subgraph "Application Lifecycle"
+        A[Application Start] --> B{Configuration Loading}
+        B --> C[Context Initializers]
+    end
+
+    subgraph "Request/Message Processing"
+        D["Entrypoint (HTTP/Kafka)"] --> E{Context Extraction/Generation}
+        E --> F[MDC Context Setup]
+        E --> G[Tracing Context Setup]
+        F & G --> H[Coroutine Context Propagation]
+        H --> I[Business Logic Execution]
+        I --> J[Logging]
+        I --> K[External Service Calls]
+        I --> L[Kafka Message Production]
+    end
+
+    subgraph "Context Management Details"
+        F -- "correlationId, correlationIdInternal, depth" --> M["MDC (Mapped Diagnostic Context)"]
+        G -- "traceId, spanId" --> N["Tracing System (e.g., OpenTelemetry)"]
+        H -- "mdcContextElement(), withContext()" --> O[Kotlin CoroutineContext]
+    end
+
+    subgraph "Maintenance Aspects"
+        P[Configuration Files] --> B
+        Q[Monitoring & Alerting] --> J
+        R[Log Aggregation System] --> J
+        S[Tracing Backend] --> N
+    end
+
+    C --> F
+    C --> G
+    J --> R
+    K --> N
+    L --> N
+
+%%    style A fill:#f9f,stroke:#333,stroke-width:2px
+%%    style D fill:#bbf,stroke:#333,stroke-width:2px
+%%    style I fill:#bfb,stroke:#333,stroke-width:2px
+%%    style J fill:#fbb,stroke:#333,stroke-width:2px
+%%    style K fill:#fbb,stroke:#333,stroke-width:2px
+%%    style L fill:#fbb,stroke:#333,stroke-width:2px
+%%    style M fill:#eee,stroke:#333,stroke-width:1px
+%%    style N fill:#eee,stroke:#333,stroke-width:1px
+%%    style O fill:#eee,stroke:#333,stroke-width:1px
+%%    style P fill:#ccf,stroke:#333,stroke-width:1px
+%%    style Q fill:#ccf,stroke:#333,stroke-width:1px
+%%    style R fill:#ccf,stroke:#333,stroke-width:1px
+%%    style S fill:#ccf,stroke:#333,stroke-width:1px

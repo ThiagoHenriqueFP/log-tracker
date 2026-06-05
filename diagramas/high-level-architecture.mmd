@@ -1,0 +1,33 @@
+graph TD
+    subgraph "Interações Externas"
+        A["Usuário ou Sistema Externo"]
+    end
+
+    subgraph "Nosso Sistema: Log Tracker"
+        B["API de Entrada"]
+        C["Coração do Sistema (Lógica Principal)"]
+        D["Processador de Tarefas em Fila"]
+    end
+
+    subgraph "Sistemas Auxiliares"
+        E["Fila de Mensagens (Kafka)"]
+        F["Outros Serviços da Empresa"]
+        G["Painel Central de Logs"]
+    end
+
+    A --> B
+    B --> C
+
+    C -- "Realiza o trabalho principal e..." --> E
+    C -- "Consulta ou atualiza outros sistemas" --> F
+    C -- "Grava um registro de tudo que faz" --> G
+
+    E -- "Envia tarefas para serem processadas depois" --> D
+    D -- "Processa tarefas e também..." --> G
+    D --> F
+
+%%    classDef ourSystem fill:#cde4ff,stroke:#4285F4,stroke-width:2px
+    class B,C,D ourSystem
+
+%%    classDef externalSystem fill:#e6e6e6,stroke:#666,stroke-width:2px
+    class E,F,G externalSystem

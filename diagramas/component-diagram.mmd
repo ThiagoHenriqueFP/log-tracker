@@ -1,0 +1,24 @@
+graph TD
+    subgraph "Distributed Logging Service"
+        A[Web Layer]
+        B[Usecase Layer]
+        C[Kafka Layer]
+        D[Client Layer]
+        E[Config Layer]
+    end
+
+    A --> B
+    B --> C
+    B --> D
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+
+    subgraph "External Systems"
+        F[Kafka]
+        G[Other Services]
+    end
+
+    C --> F
+    D --> G

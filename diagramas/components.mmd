@@ -1,0 +1,40 @@
+flowchart LR
+    subgraph App[Application Components]
+      A[Controller / REST API]
+      B[CoroutineUseCaseImpl]
+      C[MdcContextManager / MdcSubContextManager]
+      D[MdcScopeManager]
+      E[SimpleJavaHttpClient / SimpleWebClient]
+      F[KafkaProducer / KafkaConsumer Beans]
+      G[MdcProducerInterceptor]
+    end
+
+    subgraph Infra[Infrastructure]
+      KAFKA[Kafka Broker]
+      FLUENTD[Fluentd -> Elasticsearch]
+      ES[Elasticsearch]
+      KIBANA[Kibana]
+    end
+
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    B --> F
+    F --> G
+    G --> KAFKA
+    F --> KAFKA
+    KAFKA --> F
+    KAFKA --> FLUENTD
+    FLUENTD --> ES
+    ES --> KIBANA
+
+    click C "./src/main/kotlin/br/edu/ufersa/distributed_logging/config/mdc/CoroutineMdcConfig.kt" "MDC context element"
+    click G "./src/main/kotlin/br/edu/ufersa/distributed_logging/config/kafka/interceptors/MdcProducerInterceptor.kt" "Producer interceptor reads MDC and adds headers"
+
+%%    classDef infra fill:#f9fafb,stroke:#ddd
+    class Infra,FLUENTD,ES,KIBANA infra
+
+    %% notes
+    A:::infra
+

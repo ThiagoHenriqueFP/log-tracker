@@ -1,0 +1,36 @@
+flowchart TD
+    subgraph Clients[Entradas]
+      HTTP[HTTP Client / Controller]
+      KAFKA[Kafka Listener]
+    end
+
+    subgraph LoggingConfiguratinon
+        LC[loggingConfiguration]
+        CHECK
+        LCSUB[Gerar informacoes\nsub contexto]
+        REGISTER[Registrar correlationId no MDC]
+        GENERATE[Gerar correlationId e registrar no MDC]
+    end
+
+    INIT["Interceptadores (WEB / KAFKA)"]
+
+    HTTP --> INIT
+    KAFKA --> INIT
+
+    INIT --> LC[loggingConfiguration]
+    LC --> CHECK{Existe correlationId\nnos headers / tracing?}
+    CHECK -->|Sim| REGISTER[Registrar correlationId no MDC]
+    CHECK -->|Não| GENERATE[Gerar correlationId e registrar no MDC]
+    REGISTER --> PROP["Atualizar dados do MDC"]
+    GENERATE --> PROP
+
+    PROP --> BUSINESS[Executar lógica de negócio]
+    BUSINESS --> SUB{Criar sub contexto?}
+    SUB --> |Sim| LC
+    SUB --> |Não| END[Seguir fluxo normal]
+
+    LC --> LCSUB
+    LCSUB --> PROP
+
+classDef gray fill:#f3f4f6,stroke:#bbb
+class Clients gray

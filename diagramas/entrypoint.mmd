@@ -1,10 +1,30 @@
 flowchart TD
-    C[inicializador MDC]
-    A[Client Http] --> C
-    B[Client Kafka] --> C
-    C --> D{Tem correlationId\n nos headers?}
-    D -->|Sim| E[Registrar MDC\ncom correlationId]
-    D -->|Não| F[Gerar correlationId\npara MDC]
-    E --> G
-    F --> G
-    G[Executar lógica de negócio] --> H[Registrar logs\ncom MDC]
+    subgraph Clients[Entrypoints]
+      HTTP[HTTP Client / Controller]
+      KAFKA[Kafka Listener]
+    end
+
+    INIT[Inicializador MDC / Tracing sync]
+
+    HTTP --> INIT
+    KAFKA --> INIT
+
+    INIT --> CHECK{Existe correlationId\nnos headers / tracing?}
+    CHECK -->|Sim| REGISTER[Registrar correlationId no MDC]
+    CHECK -->|Não| GENERATE[Gerar correlationId e registrar no MDC]
+
+    REGISTER --> PROP["Propagar para CoroutineContext\nvia mdcContextElement()"]
+    GENERATE --> PROP
+
+    PROP --> BUSINESS["Executar lógica de negócio (coroutines)"]
+    BUSINESS --> SUB[Para cada sub-fluxo:\ncriar correlationIdInternal único]
+    SUB --> LOGS[Logs gravam correlationId + correlationIdInternal + depth]
+
+    BUSINESS --> KPROD["Produzir mensagem Kafka\n(MdcProducerInterceptor adiciona headers a partir do MDC)"]
+    KPROD --> BROKER[Kafka Broker]
+    BROKER --> KCON{Consumidores}
+    KCON -->|Consumer A| KAFKA
+    KCON -->|Consumer B| KAFKA
+
+    classDef gray fill:#f3f4f6,stroke:#bbb
+    class Clients,INIT,PROP,SUB gray
