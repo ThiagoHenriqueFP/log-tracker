@@ -19,7 +19,7 @@ kafka:
 
 simple:
   service:
-    base-url: ${CLIENT_URL:localhost:8080}
+    base-url: ${CLIENT_URL:localhost:8088}
 
 kind: Application
 

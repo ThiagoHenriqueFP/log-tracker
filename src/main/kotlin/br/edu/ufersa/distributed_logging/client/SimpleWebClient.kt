@@ -38,17 +38,15 @@ class SimpleWebClient(
                 .header("X-Correlation-ID", mdcInterceptor.createCorrelationId())
                 .GET()
                 .build()
+            logger.debug("method=SimpleWebClient.sendEvent, message=Enviando requisição GET para $baseUrl/simples/$str")
             val response = webClient.send(request, HttpResponse.BodyHandlers.ofString())
 
             if (response.statusCode() in 200..299) {
                 response.body()
             } else {
                 logger.error(
-                    "Resposta inesperada ao chamar POST {}/simples: {} - {}",
-                    baseUrl,
-                    response.statusCode(),
-                    response.body()
-                )
+                    "Resposta inesperada ao chamar POST $baseUrl/simples/$str: ${response.statusCode()} - " +
+                            "${response.body()}")
                 throw RuntimeException("Resposta inesperada: ${response.statusCode()}")
             }
         } catch (e: Exception) {

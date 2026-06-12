@@ -2,6 +2,7 @@ package br.edu.ufersa.distributed_logging.web.impl
 
 import br.edu.ufersa.distributed_logging.usecase.async.AsyncUseCase
 import br.edu.ufersa.distributed_logging.usecase.coroutine.CoroutineUseCase
+import br.edu.ufersa.distributed_logging.usecase.external.ExternalUseCase
 import br.edu.ufersa.distributed_logging.usecase.nested.NestedUseCase
 import br.edu.ufersa.distributed_logging.usecase.simple.SimpleUseCase
 import br.edu.ufersa.distributed_logging.web.WithLogController
@@ -14,7 +15,8 @@ class WithLogControllerImpl(
     private val simpleUseCase: SimpleUseCase,
     private val coroutineUseCase: CoroutineUseCase,
     private val asyncUseCase: AsyncUseCase,
-    private val nestedUseCase: NestedUseCase
+    private val nestedUseCase: NestedUseCase,
+    private val externalUseCase: ExternalUseCase,
 ) : WithLogController {
     companion object {
         private val logger = LoggerFactory.getLogger(WithLogControllerImpl::class.java)
@@ -46,5 +48,9 @@ class WithLogControllerImpl(
     override fun coroutine(): ResponseEntity<String> {
         coroutineUseCase.execute()
         return ResponseEntity.ok().build()
+    }
+
+    override fun external(value: String): ResponseEntity<Any> {
+        return ResponseEntity.ok(externalUseCase.execute(value))
     }
 }

@@ -2,6 +2,7 @@ package br.edu.ufersa.distributed_logging.web.impl
 
 import br.edu.ufersa.distributed_logging.usecase.async.AsyncUseCase
 import br.edu.ufersa.distributed_logging.usecase.coroutine.CoroutineUseCase
+import br.edu.ufersa.distributed_logging.usecase.external.ExternalUseCase
 import br.edu.ufersa.distributed_logging.usecase.nested.NestedUseCase
 import br.edu.ufersa.distributed_logging.usecase.simple.SimpleUseCase
 import br.edu.ufersa.distributed_logging.web.WithoutLogController
@@ -14,7 +15,8 @@ class WithoutLogControllerImpl(
     private val simpleUseCase: SimpleUseCase,
     private val coroutineUseCase: CoroutineUseCase,
     private val asyncUseCase: AsyncUseCase,
-    private val nestedUseCase: NestedUseCase
+    private val nestedUseCase: NestedUseCase,
+    private val externalUseCase: ExternalUseCase
 ) : WithoutLogController {
     companion object {
         private val logger = LoggerFactory.getLogger(WithoutLogControllerImpl::class.java)
@@ -30,8 +32,12 @@ class WithoutLogControllerImpl(
         }
     }
 
-    override fun simple(str: String): ResponseEntity<Any> {
-        return ResponseEntity.ok(simpleUseCase.execute(str))
+    override fun simple(value: String): ResponseEntity<Any> {
+        return ResponseEntity.ok(simpleUseCase.execute(value))
+    }
+
+    override fun external(value: String): ResponseEntity<Any> {
+        return ResponseEntity.ok(externalUseCase.execute(value))
     }
 
     override fun nested(): ResponseEntity<Any> {

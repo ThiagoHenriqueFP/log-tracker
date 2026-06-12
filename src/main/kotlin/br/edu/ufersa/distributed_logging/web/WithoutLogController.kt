@@ -3,6 +3,7 @@ package br.edu.ufersa.distributed_logging.web
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 
 @RequestMapping(value = ["/off"])
@@ -20,5 +21,8 @@ interface WithoutLogController {
     fun coroutine(): ResponseEntity<String>
 
     @GetMapping("/simples/{value}")
-    fun simple(@PathVariable value: String): ResponseEntity<Any>
+    fun simple(@PathVariable(name = "value") value: String): ResponseEntity<Any>
+
+    @PostMapping("/simples/{value}")
+    fun external(@PathVariable(name = "value") value: String): ResponseEntity<Any>
 }

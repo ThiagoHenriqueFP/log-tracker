@@ -25,6 +25,7 @@ class SimpleUseCaseImpl : SimpleUseCase {
     }
 
     override fun execute(str: String): String {
+        logger.info("method=SimpleUseCaseImpl.execute, message=Executando caso de uso simples com parametro - $str")
         return str.plus(" - Processado pelo caso de uso simples")
     }
 }
