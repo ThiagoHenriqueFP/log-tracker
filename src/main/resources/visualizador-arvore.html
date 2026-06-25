@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador Gráfico de Logs (Node-Link Tree)</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            background: #252526;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            flex-shrink: 0;
+        }
+        h1 { margin: 0 0 10px 0; font-size: 1.4em; color: #fff; }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* Área onde a árvore SVG será desenhada */
+        .tree-view {
+            flex: 1;
+            background: #252526;
+            border-radius: 8px;
+            border: 1px solid #333;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        /* Área onde os logs serão exibidos ao clicar no nó */
+        .log-panel {
+            flex: 1;
+            background: #252526;
+            border-radius: 8px;
+            border: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .meta-info {
+            background: #2d2d2d;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007acc;
+            font-size: 0.9em;
+        }
+        .meta-info p { margin: 4px 0; }
+        .meta-label { color: #569cd6; font-weight: bold; }
+
+        /* Cores dos níveis de log */
+        .log-line { padding: 6px 8px; border-bottom: 1px solid #333; font-size: 0.9em; display: flex; gap: 10px; }
+        .log-time { color: #569cd6; white-space: nowrap; }
+        .log-level { font-weight: bold; width: 50px; }
+        .level-debug { color: #808080; }
+        .level-info { color: #4fc1ff; }
+        .level-warn { color: #ce9178; }
+        .level-error { color: #f44336; }
+        .log-msg { color: #cecece; word-break: break-all; }
+
+        .node text { font-size: 12px; fill: #d4d4d4; }
+        .node circle { cursor: pointer; stroke-width: 2px; }
+        .node circle:hover { stroke: #fff; }
+        .link { fill: none; stroke: #555; stroke-width: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🌳 Visualizador de Logs por Contexto e Hierarquia</h1>
+    <p style="margin-bottom: 15px; font-size: 0.9em; color: #aaa;">
+        Faça upload do arquivo CSV para renderizar os fluxos agrupados por <strong>correlationId</strong>, <strong>subContextId</strong> e <strong>parentId</strong>.
+    </p>
+    <input type="file" id="csvFileInput" accept=".csv" style="color: #fff;" />
+</div>
+
+<div class="main-content">
+    <div class="tree-view" id="tree-container">
+        <svg id="tree-svg"></svg>
+    </div>
+    <div class="log-panel" id="log-panel">
+        <h3 style="margin-top:0; color:#888;">Detalhes do Contexto</h3>
+        <p>Selecione um nó na árvore de contexto para visualizar as propriedades de tracking e as linhas de log vinculadas.</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('csvFileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        document.getElementById('log-panel').innerHTML = '<p>Processando estrutura de dados...</p>';
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                const treeData = processDataForTree(results.data);
+                renderD3Tree(treeData);
+                document.getElementById('log-panel').innerHTML = '<p>Árvore carregada com sucesso! Clique em um nó para expandir os detalhes.</p>';
+            }
+        });
+    });
+
+    function processDataForTree(data) {
+        const nodes = {};
+        const roots = [];
+
+        data.forEach(row => {
+            if (!row.correlationId) return;
+
+            // Configura o nó raiz baseado no correlationId
+            if (!nodes[row.correlationId]) {
+                nodes[row.correlationId] = {
+                    id: row.correlationId,
+                    correlationId: row.correlationId,
+                    subContextId: 'N/A (Raiz do Contexto)',
+                    parentId: row.parentId || 'N/A',
+                    name: "Correlation ID: " + row.correlationId.substring(0, 8) + "...",
+                    type: 'correlation',
+                    logs: [],
+                    children: []
+                };
+            }
+
+            // Configura o nó intermediário ou folha baseado no subContextId
+            if (row.subContextId && !nodes[row.subContextId]) {
+                nodes[row.subContextId] = {
+                    id: row.subContextId,
+                    correlationId: row.correlationId,
+                    subContextId: row.subContextId,
+                    parentId: row.parentId || row.correlationId,
+                    name: ("sub: " + row.subContextName || 'SubContexto'),
+                    type: 'subcontext',
+                    logs: [],
+                    children: []
+                };
+            }
+        });
+
+        // Agrupa as mensagens nos nós correspondentes
+        data.forEach(row => {
+            if (!row.correlationId) return;
+            const targetId = row.subContextId ? row.subContextId : row.correlationId;
+            if (nodes[targetId]) nodes[targetId].logs.push(row);
+        });
+
+        // Cria os relacionamentos de parentesco na árvore
+        Object.values(nodes).forEach(node => {
+            if (node.parentId && nodes[node.parentId] && node.parentId !== node.id) {
+                nodes[node.parentId].children.push(node);
+            } else {
+                if (node.type === 'correlation') {
+                    roots.push(node);
+                }
+            }
+        });
+
+        return {
+            name: "Aplicação",
+            isVirtual: true,
+            logs: [],
+            children: roots
+        };
+    }
+
+    function renderD3Tree(treeData) {
+        const svgEl = d3.select("#tree-svg");
+        svgEl.selectAll("*").remove();
+
+        const width = 900;
+        const dx = 45;
+        const dy = 260;
+        const margin = {top: 20, right: 120, bottom: 20, left: 120};
+
+        const root = d3.hierarchy(treeData);
+        const tree = d3.tree().nodeSize([dx, dy]);
+        tree(root);
+
+        let x0 = Infinity, x1 = -x0;
+        root.each(d => {
+            if (d.x > x1) x1 = d.x;
+            if (d.x < x0) x0 = d.x;
+        });
+        const height = x1 - x0 + dx * 2;
+
+        svgEl.attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [-margin.left, x0 - dx, width, height]);
+
+        const g = svgEl.append("g");
+
+        g.append("g")
+            .selectAll("path")
+            .data(root.links())
+            .join("path")
+            .attr("class", "link")
+            .attr("d", d3.linkHorizontal().x(d => d.y).y(d => d.x));
+
+        const node = g.append("g")
+            .selectAll("g")
+            .data(root.descendants())
+            .join("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.y},${d.x})`)
+            .on("click", (event, d) => renderLogs(d.data));
+
+        node.append("circle")
+            .attr("r", 7)
+            .attr("fill", d => d.data.isVirtual ? "#888" : (d.data.type === 'correlation' ? "#007acc" : "#4caf50"))
+            .attr("stroke", "#1e1e1e");
+
+        node.append("text")
+            .attr("dy", "0.31em")
+            .attr("x", d => d.children ? -12 : 12)
+            .attr("text-anchor", d => d.children ? "end" : "start")
+            .text(d => d.data.name)
+            .clone(true).lower()
+            .attr("stroke", "#252526")
+            .attr("stroke-width", 4);
+    }
+
+    function formatTime(isoStr) {
+        try { return isoStr.substring(11, 23); } catch(e) { return isoStr || ''; }
+    }
+
+    function renderLogs(nodeData) {
+        const panel = document.getElementById('log-panel');
+
+        if (nodeData.isVirtual) {
+            panel.innerHTML = `<h3>🖥️ Raiz do Sistema</h3><p>Nó virtual de agrupamento global. Selecione uma ramificação de contexto abaixo.</p>`;
+            return;
+        }
+
+        // Renderização explícita das chaves contextuais solicitadas
+        let html = `<h3 style="color: #fff; margin-top:0;">📝 Inspeção do Contexto</h3>`;
+
+        html += `
+                <div class="meta-info">
+                    <p><span class="meta-label">Correlation ID:</span> ${nodeData.correlationId}</p>
+                    <p><span class="meta-label">SubContext ID:</span> ${nodeData.subContextId}</p>
+                    <p><span class="meta-label">Parent ID:</span> ${nodeData.parentId}</p>
+                    <p><span class="meta-label">Logs Registrados:</span> ${nodeData.logs.length}</p>
+                </div>
+            `;
+
+        html += `<h4 style="color: #fff; margin-bottom: 10px;">Linhas de Log</h4>`;
+
+        if (nodeData.logs.length === 0) {
+            html += `<p style="color:#666;"><em>Nenhum log emitido diretamente neste nó.</em></p>`;
+        } else {
+            nodeData.logs.forEach(log => {
+                const levelClass = `level-${(log.level || 'unknown').toLowerCase()}`;
+                html += `
+                        <div class="log-line">
+                            <span class="log-time">${formatTime(log['@timestamp'])}</span>
+                            <span class="log-level ${levelClass}">${log.level || '-'}</span>
+                            <span class="log-msg">${log.message || ''}</span>
+                        </div>
+                    `;
+            });
+        }
+
+        panel.innerHTML = html;
+    }
+</script>
+</body>
+</html>
